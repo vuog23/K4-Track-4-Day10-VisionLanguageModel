@@ -1,0 +1,21 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Kaggle: prepare road-damage dataset",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/Scripts/python.exe",
+      "args": ["scripts/prepare_data.py", "--kaggle"],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": { "PYTHONIOENCODING": "utf-8" }
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "clear": false
+      }
+    }
+  ]
+}
