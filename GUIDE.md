@@ -16,18 +16,22 @@
 
 ## Bước 0 · Môi trường
 
+Trong Kaggle Notebook, bật Internet và chọn **Settings → Accelerator → GPU T4 x2**. Cài thư viện theo lệnh sau; PyTorch/CUDA được cung cấp sẵn trong môi trường GPU.
+
 ```bash
-pip install -r requirements-colab.txt
+pip install -r requirements-kaggle.txt
 python -m pytest -q
 ```
 
-Nếu gặp `ImportError ... requires the Torchvision library`: cài `torchvision` cùng bản torch của Colab.
+Nếu gặp `ImportError ... requires the Torchvision library`, cài `torchvision` tương thích với bản torch của Kaggle image.
 
 ## Bước 1 · Dữ liệu
 
 ```bash
-python scripts/prepare_data.py --kaggle
+python scripts/prepare_data.py --source /kaggle/input/<dataset-folder>
 ```
+
+Trước đó, dùng **Add Input** để gắn dataset Road Damage của lab. Notebook tự tìm thư mục chứa `images/` và `labels-YOLO/` trong `/kaggle/input`.
 
 Sinh `data/images/`, `data/splits/{train,val,test}.jsonl` và `data/splits/meta.json`. Mỗi dòng `.jsonl`:
 
@@ -159,7 +163,7 @@ ghi run.json: trainable_params, peak_vram_gb (torch.cuda.max_memory_allocated), 
 ```
 
 > `model.save_pretrained()` của peft **chỉ lưu adapter LoRA**. Projector (E2/E3) được huấn luyện đầy đủ, **không nằm trong adapter**: nếu quên lưu riêng, lúc suy luận bạn sẽ nạp lại projector gốc và kết quả E2/E3 trông giống E1.
-> Chép adapter sang Google Drive sau mỗi lần chạy: session miễn phí có thể bị ngắt.
+> Notebook lưu adapter và projector vào `/kaggle/working/day10-output/checkpoints` mỗi 100 bước. Lưu Kaggle Notebook Version sau mỗi setup để giữ output.
 
 **Kiểm tra:** loss giảm đều và hữu hạn; ghi lại VRAM đỉnh và thời gian.
 
@@ -224,4 +228,4 @@ GRPO: khởi tạo từ adapter tốt nhất, `num_generations=4`, `max_completi
 | F1 E2/E3 ≈ E1 chính xác | quên nạp lại projector lúc suy luận | lưu và nạp `extra_trainable` (bước 6) |
 | `parse_valid_rate` thấp | model lặp vô hạn / bị cắt | tăng `max_new_tokens`, kiểm tra token kết thúc `<|im_end|>` trong nhãn |
 | F1 ≈ 0 mà JSON hợp lệ | sai thang toạ độ (pixel thay vì 0–1000) | xem lại bước 2 và `--coord` |
-| Mất session giữa chừng | Colab free ngắt | chép adapter lên Drive sau mỗi lần |
+| Mất session giữa chừng | Kaggle session kết thúc | lấy checkpoint từ Notebook Version đã lưu hoặc chạy lại setup còn thiếu |
